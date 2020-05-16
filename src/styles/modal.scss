@@ -1,0 +1,72 @@
+@import 'colors';
+
+$transition-duration: .3s;
+
+.Modal {
+  &__Overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity $transition-duration;
+    background: rgba(0,0,0,.5)!important;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &.ReactModal__Overlay--after-open {
+      opacity: 1;
+    }
+
+    &.ReactModal__Overlay--before-close {
+      opacity: 0;
+    }
+  }
+
+  &__Container {
+    padding: 5rem 0;
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__Content {
+    background: $i_bg;
+    min-height: 4rem;
+    border-radius: 4px;
+    min-width: 65vw;
+    max-width: 85vw;
+    padding: .2em 1em 1.8em;
+
+    p:first-child {
+      margin-top: 1em;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__ButtonsRow {
+    margin-top: 1em;
+  }
+
+  &_night {
+    .Modal__Content {
+      background: $i_bg_dark;
+      color: $i_text_light;
+    }
+  }
+}
+
+// Vertical tabs color
+.rwt__tablist[aria-orientation="vertical"] .rwt__tab[aria-selected="true"]:after {
+  border-right: 3px solid $i_main!important;
+}

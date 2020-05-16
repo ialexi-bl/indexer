@@ -1,0 +1,14 @@
+@import 'colors.scss';
+
+.TitleBar {
+  z-index: 99;
+  background: $i_main!important;
+
+  .toolbar-dropdown.closed .toolbar-button .menu-label {
+    color: white;
+  }
+
+  .list-item.selected {
+    background-color: $i_accent!important;
+  }
+}

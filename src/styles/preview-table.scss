@@ -1,0 +1,53 @@
+html, body {
+  &::-webkit-scrollbar {
+    width: 0;
+  }
+}
+
+.PreviewTable {
+  width: 100%;
+
+  & > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr 3fr 3fr 2fr 1fr 4fr 4fr 3fr 2fr;
+    position: relative;
+    width: 100%;
+
+    & > div:first-child, & > div:last-child {
+      grid-column: 1 / -1
+    }
+  }
+
+  &__DoubleRow {
+    display: contents;
+  }
+
+  &__SingleRow {
+    display: contents;
+  }
+
+  &__Header {
+    font-weight: bold;
+  }
+
+  &__ScrollCont {
+
+  }
+
+  &__Cell {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 .5em;
+
+    &_header {
+      justify-self: center;
+      position: sticky;
+      background: white;
+      min-height: 3em;
+      border-bottom: 1px solid lightgray;
+      width: 100%;
+      top: 0;
+    }
+  }
+}

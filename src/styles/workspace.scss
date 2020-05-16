@@ -1,0 +1,12 @@
+.Workspace {
+  display: flex;
+  flex-direction: column;
+
+  &__SaveBtn {
+    margin-bottom: 2em;
+  }
+
+  .Form {
+    grid-gap: .2em;
+  }
+}

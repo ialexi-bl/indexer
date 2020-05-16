@@ -1,0 +1,225 @@
+@import 'colors';
+
+.Form {
+  align-items: center;
+  padding: 1em;
+  display: grid;
+  grid-template-columns: 7em auto 2em;
+  grid-gap: .5em;
+
+  &__Icon {
+    height: 100%;
+    fill: currentColor;
+  }
+
+  &__Title {
+    grid-column: 1 / -1;
+  }
+
+  &__InputRow {
+    display: contents;
+  }
+
+  &__Label {
+    line-height: 1.5;
+    hyphens: manual;
+    cursor: text;
+    grid-column: 1;
+
+    &_workspace {
+      cursor: pointer;
+    }
+
+    &_unsure {
+      color: $warning-color;
+    }
+  }
+
+  &__Input, &__Button {
+    border-radius: 4px;
+    box-shadow: 0 0 0 0 transparent;
+    transition: .15s;
+    border: none;
+    height: 1.7em;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__Checkbox_undefined .react-switch-bg {
+    background: #d1d5da !important;
+  }
+
+  &__Input {
+    padding: .5em;
+    border: 2px solid $i_secondary_highlight;
+    cursor: text;
+
+    &:focus {
+      //box-shadow: 0 0 0 2px $i_main;
+      border-color: $i_main!important;
+    }
+
+    &_invalid {
+      box-shadow: 0 0 0 2px $warning-color;
+    }
+
+    &_readonly, &_disabled {
+      border: none;
+      background: $disabled-color!important;
+      color: #666!important;
+
+      &:focus {
+        box-shadow: 0 0 0 2px lightgray;
+        outline: none;
+      }
+    }
+  }
+
+  &__Input, &__Checkbox, &__Select {
+    background: $i_bg;
+    grid-column: 2 / -1;
+  }
+
+  &__FilePreview {
+    text-overflow: ellipsis;
+    min-height: 2em;
+    grid-column: 2;
+  }
+
+  &__ButtonsRow {
+    justify-content: flex-end;
+    display: flex;
+    grid-column: 1 / -1;
+    margin-top: 1em;
+
+    .Form__Button:not(:last-child) {
+      margin-right: 1em;
+    }
+  }
+
+  &__Button {
+    justify-content: center;
+    align-items: center;
+    background: $i_main;
+    min-height: 2.2em;
+    padding: .3em .7em .4em;
+    display: flex;
+    cursor: pointer;
+    color: white;
+    justify-self: end;
+
+    &:focus {
+      box-shadow: 0 0 0 2px $i_highlight;
+    }
+
+    &_cancel {
+      background: $i_faded;
+    }
+
+    &_center {
+      margin-top: 1em;
+      min-height: 2.5em;
+      align-self: center;
+      min-width: 8rem;
+      padding: 0;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &_disabled {
+      background: $i_highlight;
+      cursor: default;
+    }
+
+    &_file {
+      min-height: 2em;
+      padding: 0;
+      border: none;
+      width: 100%;
+      grid-column: 3;
+    }
+  }
+
+  &__Checkbox {
+    justify-self: end;
+  }
+
+  &__Checkbox {
+    .react-switch-bg {
+      border-radius: 8px !important;
+    }
+
+    .react-switch-handle {
+      border-radius: 6px !important;
+    }
+  }
+
+  .Form__Dead {
+    grid-column: 4;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .Form__ErasableInput {
+    position: relative;
+    .Form__Input {
+      width: 100%;
+    }
+  }
+
+  .Form__Input_disabled + .Form__Eraser {
+    display: none;
+  }
+
+  .Form__Eraser {
+    width: .9em;
+    height: .9em;
+    position: absolute;
+    cursor: pointer;
+    top: .1em;
+    right: .1em;
+  }
+
+  &_workspace {
+    grid-template-columns: 1em 11em auto 2em;
+
+    .Form__Label {
+      grid-column: 2;
+    }
+
+    .Form__Erasor {
+      grid-column: -3;
+    }
+
+    .Form__Input, .Form__ErasableInput, .Form__Checkbox, .Form__Select {
+      grid-column: 3 / -2;
+    }
+
+    .Form__Unsure {
+      grid-column: 1;
+      cursor: pointer;
+      user-select: none;
+      width: 1.2em;
+    }
+  }
+}
+
+.App_night, .Modal_night {
+  .Form {
+    &__Input {
+      color: white;
+      border-color: $i_secondary_dark_highlight;
+      background: $i_bg_dark;
+    }
+
+    &__Select {
+      color: black;
+    }
+
+    &__Input_readonly {
+      background: $disabled-color
+    }
+  }
+}

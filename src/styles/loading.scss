@@ -1,0 +1,34 @@
+@import 'fonts';
+@keyframes rotation {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.Loading {
+  position: fixed;
+  display: none;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,.6);
+  z-index: 123123;
+
+  &:after {
+    font-family: 'OldLondon', cursive;
+    content: 'I';
+    font-size: 6rem;
+    animation: rotation 1s infinite;
+  }
+
+  &_visible {
+    display: flex;
+  }
+
+}
