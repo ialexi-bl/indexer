@@ -10,12 +10,9 @@ import OrderChoice from './order-choice'
 import { setPreferences } from '../services/store'
 
 export function AboutModal({ closeModal, isGuest, ...props }) {
-  const version = React.useMemo(() => ipcRenderer.sendSync('get-version'), []),
-    { t, i18n } = useTranslation(),
-    changeLanguage = React.useCallback(
-      (option) => i18n.changeLanguage(option.value),
-      []
-    )
+  const version = React.useMemo(() => ipcRenderer.sendSync('get-version'), [])
+  const { t, i18n } = useTranslation()
+  const changeLanguage = (option) => i18n.changeLanguage(option.value)
 
   return (
     <Modal {...props} className={'HelpModal'} closeModal={closeModal}>
@@ -25,7 +22,7 @@ export function AboutModal({ closeModal, isGuest, ...props }) {
           <h4>{t('Language')}</h4>
           <p>
             {t(
-              'We tried to guess your language automatically. Change it, if it is wrong. You can do it later using the "View" menu.'
+              'Your language has been chosen automatically. Change it, if it is wrong. You can do it later using the "View" menu.'
             )}
           </p>
           <SelectRow
@@ -64,11 +61,11 @@ export function HelpModal({ closeModal, ...props }) {
         <p>
           Workspace consists of 3 parts: general, husband and wife data. When
           you save an entry, the year will not change and the document number
-          will be increased by one. Use <kbd>Tab</kbd> / <kbd>🡒</kbd> /{' '}
-          <kbd>🡓</kbd> to navigate to the next field and <kbd>Shift+Tab</kbd> /{' '}
-          <kbd>🡐</kbd> / <kbd>🡑</kbd> - to the previous one. If you navigate
-          forwards, while focused on the "Add" button, the row will
-          automatically be added to the document.
+          will be increased by one. Use <kbd>Tab</kbd> / <kbd>↓</kbd> /
+          <kbd>→</kbd>/ <kbd>Enter</kbd> to navigate to the next field and
+          <kbd>Shift+Tab</kbd> / <kbd>↑</kbd>/<kbd>←</kbd> - to the previous
+          one. If you navigate forwards, while focused on the "Add" button, the
+          row will automatically be added to the document.
         </p>
         <p>
           Some fields, that are rarely used, are disabled by default. They will
@@ -102,11 +99,6 @@ export function HelpModal({ closeModal, ...props }) {
 
         <h4>Key bindings</h4>
         <p>
-          As previously shown, you can use <kbd>Tab</kbd> / <kbd>🡒</kbd> /{' '}
-          <kbd>🡓</kbd> and <kbd>Shift+Tab</kbd> / <kbd>🡐</kbd> / <kbd>🡑</kbd> to
-          navigate forwards and backwards through fields respectively.
-        </p>
-        <p>
           Use <kbd>Ctrl+D</kbd> to mark person as dead, where possible.
         </p>
         <p>
@@ -128,11 +120,11 @@ export function HelpModal({ closeModal, ...props }) {
 }
 
 export function LanguageModal({ closeModal, ...props }) {
-  const { t, i18n } = useTranslation(),
-    changeLanguage = React.useCallback((option) => {
-      localStorage.setItem('language', option.value)
-      i18n.changeLanguage(option.value)
-    }, [])
+  const { t, i18n } = useTranslation()
+  const changeLanguage = (option) => {
+    localStorage.setItem('language', option.value)
+    i18n.changeLanguage(option.value)
+  }
 
   return (
     <Modal {...props} closeModal={closeModal}>
@@ -168,22 +160,23 @@ const createDefaultOrder = (order, t, isHusband) =>
   }))
 
 function OrderModalPure({ inputsOrder, closeModal, dispatch, ...props }) {
-  const { t } = useTranslation(),
-    [husbandOrder, setHusbandOrder] = React.useState(
-      createDefaultOrder(inputsOrder.husband, t, true)
-    ),
-    [wifeOrder, setWifeOrder] = React.useState(
-      createDefaultOrder(inputsOrder.wife, t)
-    ),
-    closeHandler = React.useCallback(() => {
-      const order = {
-        husband: husbandOrder.map((x) => x.value),
-        wife: wifeOrder.map((x) => x.value),
-      }
-      localStorage.setItem('inputsOrder', JSON.stringify(order))
-      dispatch(setPreferences({ inputsOrder: order }))
-      closeModal()
-    }, [husbandOrder, wifeOrder])
+  const { t } = useTranslation()
+  const [husbandOrder, setHusbandOrder] = React.useState(
+    createDefaultOrder(inputsOrder.husband, t, true)
+  )
+  const [wifeOrder, setWifeOrder] = React.useState(
+    createDefaultOrder(inputsOrder.wife, t)
+  )
+
+  const closeHandler = () => {
+    const order = {
+      husband: husbandOrder.map((x) => x.value),
+      wife: wifeOrder.map((x) => x.value),
+    }
+    localStorage.setItem('inputsOrder', JSON.stringify(order))
+    dispatch(setPreferences({ inputsOrder: order }))
+    closeModal()
+  }
 
   return (
     <Modal {...props} closeModal={closeHandler}>

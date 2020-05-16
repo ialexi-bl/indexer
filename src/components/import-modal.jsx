@@ -29,98 +29,102 @@ const getDefaultOrder = (t) => [
 ]
 
 export default function ImportModal({ closeModal, ...props }) {
-  const { t, i18n } = useTranslation(),
-    // File choice
-    [path, setPath] = React.useState(localStorage.getItem('lastImport') || ''),
-    // Headers
-    [headers, setHeaders] = React.useState(null),
-    toggleHeaders = React.useCallback((state) => setHeaders(state), []),
-    // Order
-    [order, setOrder] = React.useState(() => getDefaultOrder(t)),
-    onOrderChanged = React.useCallback((order) => setOrder(order), []),
-    [loading, setLoading] = React.useState(false),
-    [message, setMessage] = React.useState(''),
-    [messageModalOpen, setMessageModalOpen] = React.useState(false),
-    [
-      messageCloseHandler,
-      setMessageCloseHandler,
-    ] = React.useState(() => () => {}),
-    [notificationOpen, setNotificationOpen] = React.useState(false),
-    closeNotificationModal = React.useCallback(
-      () => setNotificationOpen(false),
-      []
-    ),
-    [exportPath, setExportPath] = React.useState(
-      TableController.currentDocument
-    ),
-    onFileChoice = React.useCallback(() => {
-      electron.dialog.showOpenDialog(
-        electron.getCurrentWindow(),
-        {
-          title: t('Import file'),
-          filters: [
-            { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
-          ],
-          properties: ['openFile'],
-          buttonLabel: t('Choose'),
-        },
-        (paths) => {
-          if (paths) {
-            setPath(paths[0])
-            localStorage.setItem('lastImport', paths[0])
-          }
-        }
-      )
-    }, [i18n.language]),
-    onSaveDestinationChoice = React.useCallback(() => {
-      electron.dialog.showSaveDialog(
-        electron.getCurrentWindow(),
-        {
-          title: t('Save document'),
-          filters: [
-            { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
-          ],
-          buttonLabel: t('Choose'),
-          defaultPath: `${t('Document')}.xlsx`,
-        },
-        (path) => {
-          if (path) {
-            setExportPath(path)
-          }
-        }
-      )
-    }, [i18n.language]),
-    importDocument = React.useCallback(
-      async (shouldSave) => {
-        setLoading(true)
-        closeNotificationModal()
-        try {
-          if (shouldSave) await TableController.export(exportPath)
-          await TableController.import(
-            path,
-            order.map((x) => x.value),
-            headers
-          )
-          setMessage(t('Document imported successfully'))
-          setMessageCloseHandler(() => () => {
-            setMessageModalOpen(false)
-            closeModal()
-          })
-        } catch (e) {
-          console.error(e)
-          setMessage(`${t('An error happened during import')}: ${e.message}`)
-          setMessageCloseHandler(() => () => setMessageModalOpen(false))
-        } finally {
-          setLoading(false)
-          setMessageModalOpen(true)
-        }
+  const { t } = useTranslation()
+
+  // File choice
+  const [path, setPath] = React.useState(
+    localStorage.getItem('lastImport') || ''
+  )
+
+  // Headers
+  const [headers, setHeaders] = React.useState(null)
+  const toggleHeaders = React.useCallback((state) => setHeaders(state), [])
+
+  // Order
+  const [order, setOrder] = React.useState(() => getDefaultOrder(t))
+  const onOrderChanged = React.useCallback((order) => setOrder(order), [])
+  const [loading, setLoading] = React.useState(false)
+  const [message, setMessage] = React.useState('')
+  const [messageModalOpen, setMessageModalOpen] = React.useState(false)
+  const [
+    messageCloseHandler,
+    setMessageCloseHandler,
+  ] = React.useState(() => () => {})
+  const [notificationOpen, setNotificationOpen] = React.useState(false)
+
+  const closeNotificationModal = () => setNotificationOpen(false)
+  const [exportPath, setExportPath] = React.useState(
+    TableController.currentDocument
+  )
+
+  const onFileChoice = () => {
+    electron.dialog.showOpenDialog(
+      electron.getCurrentWindow(),
+      {
+        title: t('Import file'),
+        filters: [
+          { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
+        ],
+        properties: ['openFile'],
+        buttonLabel: t('Choose'),
       },
-      [i18n.language, path, order, headers]
-    ),
-    onImport = React.useCallback(() => {
-      if (!path.trim()) return
-      TableController.saved ? setNotificationOpen(true) : importDocument(false)
-    }, [path])
+      (paths) => {
+        if (paths) {
+          setPath(paths[0])
+          localStorage.setItem('lastImport', paths[0])
+        }
+      }
+    )
+  }
+
+  const onSaveDestinationChoice = () => {
+    electron.dialog.showSaveDialog(
+      electron.getCurrentWindow(),
+      {
+        title: t('Save document'),
+        filters: [
+          { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
+        ],
+        buttonLabel: t('Choose'),
+        defaultPath: `${t('Document')}.xlsx`,
+      },
+      (path) => {
+        if (path) {
+          setExportPath(path)
+        }
+      }
+    )
+  }
+
+  const importDocument = async (shouldSave) => {
+    setLoading(true)
+    closeNotificationModal()
+    try {
+      if (shouldSave) await TableController.export(exportPath)
+      TableController.import(
+        path,
+        order.map((x) => x.value),
+        headers
+      )
+      setMessage(t('Document imported successfully'))
+      setMessageCloseHandler(() => () => {
+        setMessageModalOpen(false)
+        closeModal()
+      })
+    } catch (e) {
+      console.error(e)
+      setMessage(`${t('An error happened during import')}: ${e.message}`)
+      setMessageCloseHandler(() => () => setMessageModalOpen(false))
+    } finally {
+      setLoading(false)
+      setMessageModalOpen(true)
+    }
+  }
+
+  const onImport = () => {
+    if (!path.trim()) return
+    TableController.saved ? setNotificationOpen(true) : importDocument(false)
+  }
 
   return (
     <Modal className={'ImportModal'} closeModal={closeModal} {...props}>

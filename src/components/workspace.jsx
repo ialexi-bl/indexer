@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import Select from 'react-select'
 import TableController from 'services/TableController'
-import KeyBinding, { useAltGr } from '../services/KeyBinding'
+import KeyBinding from '../services/KeyBinding'
 import { Slide, toast } from 'react-toastify'
 import 'styles/workspace.scss'
 
@@ -186,7 +186,7 @@ const RESET = 'RESET'
 
 function fieldsReducer(state, action) {
   switch (action.type) {
-    case SET_VALUE:
+    case SET_VALUE: {
       return {
         ...state,
         [action.field]: {
@@ -194,7 +194,8 @@ function fieldsReducer(state, action) {
           value: action.value,
         },
       }
-    case SET_TYPE:
+    }
+    case SET_TYPE: {
       return {
         ...state,
         [action.field]: {
@@ -202,7 +203,8 @@ function fieldsReducer(state, action) {
           type: action.option,
         },
       }
-    case SET_DEAD:
+    }
+    case SET_DEAD: {
       return {
         ...state,
         [action.field]: {
@@ -210,7 +212,8 @@ function fieldsReducer(state, action) {
           dead: action.dead,
         },
       }
-    case SET_UNSURE:
+    }
+    case SET_UNSURE: {
       return {
         ...state,
         [action.field]: {
@@ -218,7 +221,8 @@ function fieldsReducer(state, action) {
           unsure: action.state,
         },
       }
-    case ENABLE:
+    }
+    case ENABLE: {
       return {
         ...state,
         [action.field]: {
@@ -226,7 +230,8 @@ function fieldsReducer(state, action) {
           disabled: false,
         },
       }
-    case RESET:
+    }
+    case RESET: {
       return Object.fromEntries(
         Object.entries(state).map(([field, desc]) => [
           field,
@@ -239,7 +244,8 @@ function fieldsReducer(state, action) {
           },
         ])
       )
-    case CHANGE_CONFIG:
+    }
+    case CHANGE_CONFIG: {
       const newConfig = createFieldsDesc(action.t)(action.order)
       return Object.fromEntries(
         Object.entries(state).map(([field, desc]) => [
@@ -252,6 +258,10 @@ function fieldsReducer(state, action) {
           },
         ])
       )
+    }
+    default: {
+      return state
+    }
   }
 }
 
@@ -305,176 +315,133 @@ const choiceStyles = {
   }),
 }
 
-function Workspace({ className, inputsOrder, enablePolishLetters }) {
-  const { t, i18n } = useTranslation(),
-    [fields, fieldsDispatch] = React.useReducer(
-      fieldsReducer,
-      inputsOrder,
-      createFieldsDesc(t)
-    ),
-    { current: inputRefs } = React.useRef({}),
-    // Year & document
-    [currentYear, setCurrentYear] = React.useState(
-      React.useMemo(() => localStorage.getItem('lastYear') || '', [])
-    ),
-    [currentDocument, setCurrentDocument] = React.useState(
-      React.useMemo(() => localStorage.getItem('lastDocument') || '', [])
-    ),
-    onYearChanged = React.useCallback(
-      (e) => localStorage.setItem('lastYear', e.target.value),
-      []
-    ),
-    onDocumentChanged = React.useCallback(
-      (e) => localStorage.setItem('lastDocument', e.target.value),
-      []
-    ),
-    mapFieldsToInputs = React.useCallback(
-      (prefix, order) => {
-        return order.map((field) => {
-          field = `${prefix}.${field}`
-          const desc = fields[field]
-          return (
-            <React.Fragment key={field}>
-              {!desc.forbidUnsure && (
-                <UnsureBtn
-                  checked={desc.unsure}
-                  onChange={(state) => fieldsDispatch(setUnsure(field, state))}
+function Workspace({ className, inputsOrder }) {
+  const { t, i18n } = useTranslation()
+  const [fields, fieldsDispatch] = React.useReducer(
+    fieldsReducer,
+    inputsOrder,
+    createFieldsDesc(t)
+  )
+  const { current: inputRefs } = React.useRef({})
+
+  // Year & document
+  const [currentYear, setCurrentYear] = React.useState(
+    () => localStorage.getItem('lastYear') || ''
+  )
+  const [currentDocument, setCurrentDocument] = React.useState(
+    () => localStorage.getItem('lastDocument') || ''
+  )
+  const onYearChanged = (e) => localStorage.setItem('lastYear', e.target.value)
+  const onDocumentChanged = (e) =>
+    localStorage.setItem('lastDocument', e.target.value)
+
+  const mapFieldsToInputs = (prefix, order) => {
+    return order.map((field) => {
+      field = `${prefix}.${field}`
+      const desc = fields[field]
+      return (
+        <React.Fragment key={field}>
+          {!desc.forbidUnsure && (
+            <UnsureBtn
+              checked={desc.unsure}
+              onChange={(state) => fieldsDispatch(setUnsure(field, state))}
+            />
+          )}
+          <InputRow
+            erasable
+            value={desc.value}
+            disabled={desc.disabled}
+            inputRef={(elem) => (inputRefs[field] = elem)}
+            onChange={(e) => fieldsDispatch(setValue(field, e.target.value))}
+            onClick={
+              desc.disabled ? () => fieldsDispatch(enable(field)) : undefined
+            }
+            name={field}
+            label={
+              desc.typeChoice ? (
+                <Select
+                  options={desc.typeChoice}
+                  value={desc.type}
+                  onChange={(option) => fieldsDispatch(setType(field, option))}
+                  styles={choiceStyles}
                 />
-              )}
-              <InputRow
-                erasable
-                value={desc.value}
-                disabled={desc.disabled}
-                inputRef={(elem) => (inputRefs[field] = elem)}
-                onChange={(e) =>
-                  fieldsDispatch(setValue(field, e.target.value))
-                }
-                onClick={
-                  desc.disabled ? () => fieldsDispatch(enable(field)) : void 0
-                }
-                name={field}
-                label={
-                  desc.typeChoice ? (
-                    <Select
-                      options={desc.typeChoice}
-                      value={desc.type}
-                      onChange={(option) =>
-                        fieldsDispatch(setType(field, option))
-                      }
-                      styles={choiceStyles}
-                    />
-                  ) : (
-                    desc.label
-                  )
-                }
-              />
-              {desc.canBeDead && (
-                <DeadBtn
-                  checked={desc.dead}
-                  onChange={(state) => fieldsDispatch(setDead(field, state))}
-                />
-              )}
-            </React.Fragment>
-          )
-        })
-      },
-      [fields, inputRefs]
-    ),
-    saveRow = React.useCallback(() => {
-      if (!Object.values(fields).some((x) => x.value && x.value.trim())) {
-        toast.dismiss('emptyNotification')
-        return toast.error(t('Enter the data first!'), {
-          position: toast.POSITION.TOP_CENTER,
-          className: 'App__Toast',
-          autoClose: 1500,
-          hideProgressBar: true,
-          toastId: 'emptyNotification',
-          transition: Slide,
-        })
+              ) : (
+                desc.label
+              )
+            }
+          />
+          {desc.canBeDead && (
+            <DeadBtn
+              checked={desc.dead}
+              onChange={(state) => fieldsDispatch(setDead(field, state))}
+            />
+          )}
+        </React.Fragment>
+      )
+    })
+  }
+
+  const saveRow = () => {
+    save(fields, currentYear, currentDocument, t)
+    setCurrentDocument(+currentDocument + 1)
+    fieldsDispatch(reset())
+  }
+
+  // Movement between fields
+  const onContKeyDown = (e) => {
+    const name = e.target.attributes.name
+    if (!name) return
+
+    if (KeyBinding.get('markDead').test(e) && fields[name.value].canBeDead) {
+      return fieldsDispatch(setDead(name.value, !fields[name.value].dead))
+    }
+    if (KeyBinding.get('eraseField').test(e)) {
+      return fieldsDispatch(setValue(name.value, ''))
+    }
+    if (KeyBinding.get('setUnsure').test(e)) {
+      return fieldsDispatch(setUnsure(name.value, !fields[name.value].unsure))
+    }
+
+    const direction = KeyBinding.get('navigateForwards').test(e)
+      ? 'next'
+      : KeyBinding.get('navigateBackwards').test(e)
+      ? 'prev'
+      : null
+    console.log(e)
+    if (!direction) return
+
+    e.preventDefault()
+    let nextField = fields[name.value][direction]
+
+    const forceEnable = KeyBinding.getControl('forceEnable').test(e)
+    // Switching to next field while it is disabled (if not forced) and unless it is not defined (for first and last ones)
+    while (
+      fields[nextField] &&
+      fields[nextField].disabled &&
+      // eslint-disable-next-line no-unmodified-loop-condition
+      !forceEnable &&
+      fields[nextField][direction] !== null
+    ) {
+      nextField = fields[nextField][direction]
+    }
+
+    if (nextField) {
+      if (fields[nextField] && fields[nextField].disabled) {
+        fieldsDispatch(enable(nextField))
       }
-      const rows = {
-        husband: { year: currentYear, document: currentDocument, check: '' },
-        wife: { year: currentYear, document: currentDocument, check: '' },
-      }
-
-      for (let name of Object.keys(fields)) {
-        const [set, key] = name.split('.')
-        const field = fields[name]
-        if (!key) continue
-        rows[set][key] = field.value
-          ? (field.type && field.type.value ? field.type.value + ' ' : '') + // Prefixes (primo voto, alias)
-            field.value +
-            (field.dead ? ' +' : '') // Postfixes (dead)
-          : ''
-        if (field.unsure) rows[set].check += `${checkLabels[key]}, `
-      }
-      rows.husband.check = rows.husband.check.replace(/, $/, '')
-      rows.wife.check = rows.wife.check.replace(/, $/, '')
-
-      TableController.addRow(rows.husband)
-      TableController.addRow(rows.wife)
-      setCurrentDocument(+currentDocument + 1)
-      fieldsDispatch(reset())
-    }, [currentYear, fields, currentDocument]),
-    // Movement between fields
-    onContKeyDown = React.useCallback(
-      (e) => {
-        const name = e.target.attributes.name
-        if (!name) return
-
-        if (
-          KeyBinding.get('markDead').test(e) &&
-          fields[name.value].canBeDead
-        ) {
-          return fieldsDispatch(setDead(name.value, !fields[name.value].dead))
-        }
-        if (KeyBinding.get('eraseField').test(e)) {
-          return fieldsDispatch(setValue(name.value, ''))
-        }
-        if (KeyBinding.get('setUnsure').test(e)) {
-          return fieldsDispatch(
-            setUnsure(name.value, !fields[name.value].unsure)
-          )
-        }
-
-        const direction = KeyBinding.get('navigateForwards').test(e)
-          ? 'next'
-          : KeyBinding.get('navigateBackwards').test(e)
-          ? 'prev'
-          : null
-
-        if (!direction) return
-        e.preventDefault()
-        let nextField = fields[name.value][direction]
-
-        const forceEnable = KeyBinding.getControl('forceEnable').test(e)
-        // Switching to next field while it is disabled (if not forced) and unless it is not defined (for first and last ones)
-        while (
-          fields[nextField] &&
-          fields[nextField].disabled &&
-          !forceEnable &&
-          fields[nextField][direction] !== null
-        )
-          nextField = fields[nextField][direction]
-
-        if (nextField) {
-          if (fields[nextField] && fields[nextField].disabled)
-            fieldsDispatch(enable(nextField))
-          inputRefs[nextField].focus()
-        }
-        // If navigated forwards while focused on the button
-        else if (direction === 'next') {
-          saveRow()
-          inputRefs[`husband.${inputsOrder.husband[0]}`].focus()
-        }
-        // Otherwise navigated backwards staying on year
-      },
-      [inputRefs, saveRow, fields, inputsOrder.husband]
-    )
+      inputRefs[nextField].focus()
+    }
+    // If navigated forwards while focused on the button
+    else if (direction === 'next') {
+      saveRow()
+      inputRefs[`husband.${inputsOrder.husband[0]}`].focus()
+    }
+    // Otherwise navigated backwards staying on year
+  }
 
   React.useEffect(() => {
     fieldsDispatch(changeConfig(t, inputsOrder))
-  }, [i18n.language, inputsOrder])
+  }, [i18n.language, inputsOrder, t])
 
   return (
     <div
@@ -523,7 +490,41 @@ function Workspace({ className, inputsOrder, enablePolishLetters }) {
   )
 }
 
-export default connect(({ inputsOrder, enablePolishLetters }) => ({
+export default connect(({ inputsOrder }) => ({
   inputsOrder,
-  enablePolishLetters,
 }))(Workspace)
+
+function save(fields, year, doc, t) {
+  if (!Object.values(fields).some((x) => x.value && x.value.trim())) {
+    toast.dismiss('emptyNotification')
+    return toast.error(t('Enter the data first!'), {
+      position: toast.POSITION.TOP_CENTER,
+      className: 'App__Toast',
+      autoClose: 1500,
+      hideProgressBar: true,
+      toastId: 'emptyNotification',
+      transition: Slide,
+    })
+  }
+  const rows = {
+    husband: { year: year, document: doc, check: '' },
+    wife: { year: year, document: doc, check: '' },
+  }
+
+  for (const name of Object.keys(fields)) {
+    const [set, key] = name.split('.')
+    const field = fields[name]
+    if (!key) continue
+    rows[set][key] = field.value
+      ? (field.type && field.type.value ? field.type.value + ' ' : '') + // Prefixes (primo voto, alias)
+        field.value +
+        (field.dead ? ' +' : '') // Postfixes (dead)
+      : ''
+    if (field.unsure) rows[set].check += `${checkLabels[key]}, `
+  }
+  rows.husband.check = rows.husband.check.replace(/, $/, '')
+  rows.wife.check = rows.wife.check.replace(/, $/, '')
+
+  TableController.addRow(rows.husband)
+  TableController.addRow(rows.wife)
+}

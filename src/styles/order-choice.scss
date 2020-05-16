@@ -4,25 +4,25 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: 0 .2em;
-  box-shadow: -12px 0 0 -10px $i_main,
-              12px 0 0 -10px $i_main;
+  padding: 0 0.2em;
+  box-shadow: -12px 0 0 -10px $i_main, 12px 0 0 -10px $i_main;
 
   &__Item {
     font-size: 1.1rem;
-    padding: .5em .5em .6em;
+    padding: 0.5em 0.5em 0.6em;
     background: white;
-    margin-bottom: .1em;
+    margin-bottom: 0.1em;
     border-radius: 8px;
     user-select: none;
   }
 }
-.App_night, .Modal_night {
+.App_night,
+.Modal_night {
   .OrderChoice__Item {
     background: $i_bg_dark;
 
     &:hover {
-      background: transparentize($i_bg_dark, .15);
+      background: transparentize($i_bg_dark, 0.15);
     }
   }
 }

@@ -8,91 +8,92 @@ import TableController from '../services/TableController'
 import Loading from './loading'
 
 export default function CreateFileModal({ closeModal, ...props }) {
-  const { t, i18n } = useTranslation(),
-    // File choice
-    [path, setPath] = React.useState(localStorage.getItem('lastImport') || ''),
-    [loading, setLoading] = React.useState(false),
-    [message, setMessage] = React.useState(''),
-    [messageModalOpen, setMessageModalOpen] = React.useState(false),
-    [
-      messageCloseHandler,
-      setMessageCloseHandler,
-    ] = React.useState(() => () => {}),
-    [notificationOpen, setNotificationOpen] = React.useState(false),
-    closeNotificationModal = React.useCallback(
-      () => setNotificationOpen(false),
-      []
-    ),
-    [exportPath, setExportPath] = React.useState(
-      TableController.currentDocument
-    ),
-    onFileChoice = React.useCallback(() => {
-      electron.dialog.showSaveDialog(
-        electron.getCurrentWindow(),
-        {
-          title: t('Create file'),
-          filters: [
-            { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
-          ],
-          properties: ['openFile'],
-          buttonLabel: t('Choose'),
-          defaultPath: `${t('Document')}.xlsx`,
-        },
-        (path) => {
-          if (path) {
-            setPath(path)
-            localStorage.setItem('lastImport', path)
-          }
-        }
-      )
-    }, [i18n.language]),
-    onSaveDestinationChoice = React.useCallback(() => {
-      electron.dialog.showSaveDialog(
-        electron.getCurrentWindow(),
-        {
-          title: t('Save document'),
-          filters: [
-            { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
-          ],
-          buttonLabel: t('Choose'),
-          defaultPath: `${t('Document')}.xlsx`,
-        },
-        (path) => {
-          if (path) {
-            setExportPath(path)
-          }
-        }
-      )
-    }, [i18n.language]),
-    importDocument = React.useCallback(
-      async (shouldSave) => {
-        setLoading(true)
-        closeNotificationModal()
-        try {
-          if (shouldSave) await TableController.export(exportPath)
-          await TableController.createDocument(path)
-          setMessage(t('Document created successfully'))
-          setMessageCloseHandler(() => () => {
-            setMessageModalOpen(false)
-            closeModal()
-          })
-        } catch (e) {
-          console.error(e)
-          setMessage(
-            `${t('An error happened while creating a file')}: ${e.message}`
-          )
-          setMessageCloseHandler(() => () => setMessageModalOpen(false))
-        } finally {
-          setLoading(false)
-          setMessageModalOpen(true)
-        }
+  const { t } = useTranslation()
+
+  // File choice
+  const [path, setPath] = React.useState(
+    localStorage.getItem('lastImport') || ''
+  )
+  const [loading, setLoading] = React.useState(false)
+  const [message, setMessage] = React.useState('')
+  const [messageModalOpen, setMessageModalOpen] = React.useState(false)
+  const [
+    messageCloseHandler,
+    setMessageCloseHandler,
+  ] = React.useState(() => () => {})
+  const [notificationOpen, setNotificationOpen] = React.useState(false)
+
+  const closeNotificationModal = () => setNotificationOpen(false)
+  const [exportPath, setExportPath] = React.useState(
+    TableController.currentDocument
+  )
+
+  const onFileChoice = () => {
+    electron.dialog.showSaveDialog(
+      electron.getCurrentWindow(),
+      {
+        title: t('Create file'),
+        filters: [
+          { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
+        ],
+        properties: ['openFile'],
+        buttonLabel: t('Choose'),
+        defaultPath: `${t('Document')}.xlsx`,
       },
-      [i18n.language, path]
-    ),
-    onImport = React.useCallback(() => {
-      if (!path.trim()) return
-      TableController.saved ? setNotificationOpen(true) : importDocument(false)
-    }, [path])
+      (path) => {
+        if (path) {
+          setPath(path)
+          localStorage.setItem('lastImport', path)
+        }
+      }
+    )
+  }
+
+  const onSaveDestinationChoice = () => {
+    electron.dialog.showSaveDialog(
+      electron.getCurrentWindow(),
+      {
+        title: t('Save document'),
+        filters: [
+          { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
+        ],
+        buttonLabel: t('Choose'),
+        defaultPath: `${t('Document')}.xlsx`,
+      },
+      (path) => {
+        if (path) {
+          setExportPath(path)
+        }
+      }
+    )
+  }
+
+  const importDocument = async (shouldSave) => {
+    setLoading(true)
+    closeNotificationModal()
+    try {
+      if (shouldSave) await TableController.export(exportPath)
+      await TableController.createDocument(path)
+      setMessage(t('Document created successfully'))
+      setMessageCloseHandler(() => () => {
+        setMessageModalOpen(false)
+        closeModal()
+      })
+    } catch (e) {
+      console.error(e)
+      setMessage(
+        `${t('An error happened while creating a file')}: ${e.message}`
+      )
+      setMessageCloseHandler(() => () => setMessageModalOpen(false))
+    } finally {
+      setLoading(false)
+      setMessageModalOpen(true)
+    }
+  }
+  const onImport = () => {
+    if (!path.trim()) return
+    TableController.saved ? setNotificationOpen(true) : importDocument(false)
+  }
 
   return (
     <Modal closeModal={closeModal} {...props}>

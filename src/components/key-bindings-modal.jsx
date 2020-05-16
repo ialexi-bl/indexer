@@ -5,16 +5,11 @@ import 'styles/key-bindings-modal.scss'
 
 export default function KeyBindingsModal({ closeModal, ...props }) {
   const { t } = useTranslation()
-  
+
   return (
-    <Modal
-        closeModal={closeModal}
-        {...props}
-    >
+    <Modal closeModal={closeModal} {...props}>
       <h3>{t('Key bindings')}</h3>
-      <section className={'BindingsTable'}>
-      
-      </section>
+      <section className={'BindingsTable'}></section>
     </Modal>
   )
 }

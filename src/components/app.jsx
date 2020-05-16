@@ -1,16 +1,14 @@
 import React from 'react'
 import { TitleBar } from 'electron-react-titlebar'
-import { Provider as ReduxProvider } from 'react-redux'
-import { createStore, setPreferences } from 'services/store'
+import { Provider as ReduxProvider, connect } from 'react-redux'
+import { createStore, setPreferences, initialState } from 'services/store'
 import ScrollableContainer from './scrollable-container'
 import Workspace from './workspace'
-import { initialState } from 'services/store'
 import { useTranslation } from 'react-i18next'
 import ImportModal from './import-modal'
 import CreateFileModal from './create-file-modal'
 import classNames from 'classnames'
 import { remote as electron, ipcRenderer } from 'electron'
-import { connect } from 'react-redux'
 import { AboutModal, HelpModal, LanguageModal } from './main-modals.jsx'
 import { Slide, toast } from 'react-toastify'
 import TableController from '../services/TableController'
@@ -27,15 +25,16 @@ import 'styles/app.scss'
 toast.configure()
 
 function initStore() {
-  const str = JSON.stringify,
-    notGuest = localStorage.getItem('notGuest')
+  const str = JSON.stringify
+
+  const notGuest = localStorage.getItem('notGuest')
 
   // Reading
   if (notGuest && JSON.parse(notGuest)) {
     const newPreferences = {}
 
-    for (let key of Object.keys(initialState)) {
-      let value = localStorage.getItem(key)
+    for (const key of Object.keys(initialState)) {
+      const value = localStorage.getItem(key)
 
       if (value)
         try {
@@ -54,7 +53,7 @@ function initStore() {
   // Initialization
   else {
     localStorage.setItem('notGuest', str(true))
-    for (let key of Object.keys(initialState)) {
+    for (const key of Object.keys(initialState)) {
       localStorage.setItem(key, str(initialState[key]))
     }
     return {
@@ -64,12 +63,10 @@ function initStore() {
 }
 
 export default function ReduxWrapper() {
-  console.log(initStore())
   const store = React.useMemo(
     () => createStore({ ...initialState, ...initStore() }),
     []
   )
-  console.log(store.getState())
   return (
     <ReduxProvider store={store}>
       <App />
@@ -82,105 +79,107 @@ const App = connect((preferences) => ({ preferences }))(function App({
   preferences,
   dispatch,
 }) {
-  const { t, i18n } = useTranslation(),
-    [modal, setModal] = React.useState(
-      preferences.isGuest ? 'about_guest' : null
-    ),
-    [nightMode, setNightMode] = React.useState(false),
-    [unloading, setUnloading] = React.useState(false),
-    closeModal = React.useCallback(() => setModal(null), []),
-    menu = React.useMemo(
-      () => [
-        {
-          label: t('File'),
-          submenu: [
-            {
-              label: t('New'),
-              click: () => setModal('create_file'),
+  const { t, i18n } = useTranslation()
+
+  const [modal, setModal] = React.useState(
+    preferences.isGuest ? 'about_guest' : null
+  )
+
+  const [nightMode, setNightMode] = React.useState(false)
+
+  const [unloading, setUnloading] = React.useState(false)
+
+  const closeModal = React.useCallback(() => setModal(null), [])
+
+  const menu = React.useMemo(
+    () => [
+      {
+        label: t('File'),
+        submenu: [
+          {
+            label: t('New'),
+            click: () => setModal('create_file'),
+          },
+          {
+            label: t('Import'),
+            click: () => setModal('import_file'),
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: t('Preview'),
+            click: () => ipcRenderer.send('open-preview-window'),
+          },
+          {
+            label: t('Save'),
+            click: () => TableController.save(t),
+          },
+          {
+            label: t('Save as') + '...',
+            click: () => TableController.save(t, false),
+          },
+        ],
+      },
+      {
+        label: t('Edit'),
+        submenu: [
+          {
+            label: t('Fields order'),
+            click: () => setModal('order'),
+          },
+        ],
+      },
+      {
+        label: t('View'),
+        submenu: [
+          {
+            label: t('Pin on top of other windows'),
+            type: 'checkbox',
+            checked: preferences.pin,
+            click: () => {
+              const state = !preferences.pin
+              localStorage.setItem('pin', String(state))
+              dispatch(setPreferences({ pin: state }))
             },
-            {
-              label: t('Import'),
-              click: () => setModal('import_file'),
+          },
+          {
+            label: t('Night mode'),
+            type: 'checkbox',
+            checked: preferences.nightMode,
+            click: () => {
+              const state = !preferences.nightMode
+              localStorage.setItem('nightMode', String(state))
+              dispatch(setPreferences({ nightMode: state }))
             },
-            {
-              type: 'separator',
-            },
-            {
-              label: t('Preview'),
-              click: () => ipcRenderer.send('open-preview-window'),
-            },
-            {
-              label: t('Save'),
-              click: () => TableController.save(t),
-            },
-            {
-              label: t('Save as') + '...',
-              click: () => TableController.save(t, false),
-            },
-          ],
-        },
-        {
-          label: t('Edit'),
-          submenu: [
-            {
-              label: t('Fields order'),
-              click: () => setModal('order'),
-            },
-            {
-              label: t('Pressing '),
-            },
-          ],
-        },
-        {
-          label: t('View'),
-          submenu: [
-            {
-              label: t('Pin on top of other windows'),
-              type: 'checkbox',
-              checked: preferences.pin,
-              click: () => {
-                const state = !preferences.pin
-                localStorage.setItem('pin', String(state))
-                dispatch(setPreferences({ pin: state }))
-              },
-            },
-            {
-              label: t('Night mode'),
-              type: 'checkbox',
-              checked: preferences.nightMode,
-              click: () => {
-                const state = !preferences.nightMode
-                localStorage.setItem('nightMode', String(state))
-                dispatch(setPreferences({ nightMode: state }))
-              },
-            },
-            {
-              type: 'separator',
-            },
-            {
-              label: `${t('Language')}${
-                i18n.language === 'en' ? '' : ' | Language'
-              }`,
-              click: () => setModal('language'),
-            },
-          ],
-        },
-        {
-          label: t('Help'),
-          submenu: [
-            {
-              label: t('About'),
-              click: () => setModal('about'),
-            },
-            {
-              label: t('Help'),
-              click: () => setModal('help'),
-            },
-          ],
-        },
-      ],
-      [i18n.language, setModal, preferences, dispatch]
-    )
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: `${t('Language')}${
+              i18n.language === 'en' ? '' : ' | Language'
+            }`,
+            click: () => setModal('language'),
+          },
+        ],
+      },
+      {
+        label: t('Help'),
+        submenu: [
+          {
+            label: t('About'),
+            click: () => setModal('about'),
+          },
+          {
+            label: t('Help'),
+            click: () => setModal('help'),
+          },
+        ],
+      },
+    ],
+    [t, dispatch, i18n.language, preferences.nightMode, preferences.pin]
+  )
 
   React.useEffect(() => {
     TableController.init()
@@ -213,7 +212,7 @@ const App = connect((preferences) => ({ preferences }))(function App({
     }
     document.addEventListener('keydown', onKeyDown)
     return () => document.removeEventListener('keydown', onKeyDown)
-  }, [i18n.language])
+  }, [t])
 
   React.useEffect(() => {
     setNightMode(preferences.nightMode)
@@ -228,7 +227,7 @@ const App = connect((preferences) => ({ preferences }))(function App({
       <ScrollableContainer>
         <Workspace className={'App__Workspace'} />
       </ScrollableContainer>
-      {/*<SettingsModal isOpen={modal === 'settings'} closeModal={closeModal}/>*/}
+      {/* <SettingsModal isOpen={modal === 'settings'} closeModal={closeModal}/> */}
       <AboutModal
         isOpen={['about', 'about_guest'].includes(modal)}
         isGuest={modal === 'about_guest'}
@@ -251,32 +250,36 @@ const App = connect((preferences) => ({ preferences }))(function App({
 })
 
 function UnloadingModal({ closeModal, ...props }) {
-  const { t, i18n } = useTranslation(),
-    [exportPath, setExportPath] = React.useState(
-      TableController.currentDocument
-    ),
-    onSaveDestinationChoice = React.useCallback(() => {
-      electron.dialog.showSaveDialog(
-        electron.getCurrentWindow(),
-        {
-          title: t('Import file'),
-          filters: [
-            { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
-          ],
-          buttonLabel: t('Choose'),
-          defaultPath: `${t('Document')}.xlsx`,
-        },
-        (path) => {
-          if (path) {
-            setExportPath(path)
-          }
+  const { t } = useTranslation()
+
+  const [exportPath, setExportPath] = React.useState(
+    TableController.currentDocument
+  )
+
+  const onSaveDestinationChoice = React.useCallback(() => {
+    electron.dialog.showSaveDialog(
+      electron.getCurrentWindow(),
+      {
+        title: t('Import file'),
+        filters: [
+          { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
+        ],
+        buttonLabel: t('Choose'),
+        defaultPath: `${t('Document')}.xlsx`,
+      },
+      (path) => {
+        if (path) {
+          setExportPath(path)
         }
-      )
-    }, [i18n.language]),
-    closeWindow = React.useCallback(() => {
-      electron.getCurrentWindow().destroy()
-    }, []),
-    onSave = React.useCallback(() => {}, [])
+      }
+    )
+  }, [t])
+
+  const closeWindow = React.useCallback(() => {
+    electron.getCurrentWindow().destroy()
+  }, [])
+
+  const onSave = React.useCallback(() => {}, [])
 
   return (
     <Modal {...props} closeModal={closeModal}>

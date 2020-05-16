@@ -1,5 +1,5 @@
-const electron = require('electron'),
-  { ipcMain } = electron
+const electron = require('electron')
+const { ipcMain } = electron
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const { version } = require('../package')
@@ -13,8 +13,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
-    minWidth: 400,
-    minHeight: 300,
+    minWidth: 500,
+    minHeight: 500,
     frame: false,
     webPreferences: {
       nodeIntegration: true,
@@ -44,13 +44,13 @@ function createWindow() {
       minWidth: 600,
       minHeight: 500,
       frame: false,
-      parent: mainWindow,
       webPreferences: {
         nodeIntegration: true,
       },
     })
     previewWindow.isPreviewWindow = true
     if (isDev) {
+      mainWindow.showInactive()
       // Open the DevTools.
       previewWindow.webContents.openDevTools()
     }

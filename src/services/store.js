@@ -7,8 +7,24 @@ export const initialState = {
   currentImport: null,
   nightMode: false,
   inputsOrder: {
-    husband: ['first_name', 'last_name', 'maiden_name', 'age', 'mother', 'father', 'other'],
-    wife: ['first_name', 'last_name', 'maiden_name', 'age', 'mother', 'father', 'other'],
+    husband: [
+      'first_name',
+      'last_name',
+      'maiden_name',
+      'age',
+      'mother',
+      'father',
+      'other',
+    ],
+    wife: [
+      'first_name',
+      'last_name',
+      'maiden_name',
+      'age',
+      'mother',
+      'father',
+      'other',
+    ],
   },
   pin: false,
   enablePolishLetters: true,
@@ -19,7 +35,7 @@ export const actionTypes = {
 }
 
 const reducer = (state = initialState, { type, payload }) => {
-  switch(type) {
+  switch (type) {
     case actionTypes.SET_PREFERENCES:
       return {
         ...state,
@@ -30,11 +46,15 @@ const reducer = (state = initialState, { type, payload }) => {
   }
 }
 
-export const setPreferences = (payload) => ({ type: actionTypes.SET_PREFERENCES, payload })
-
+export const setPreferences = (payload) => ({
+  type: actionTypes.SET_PREFERENCES,
+  payload,
+})
 
 export function createStore(state) {
   return createReduxStore(
-      reducer, state, composeWithDevTools(applyMiddleware()),
+    reducer,
+    state,
+    composeWithDevTools(applyMiddleware())
   )
 }

@@ -17,7 +17,7 @@
   left: 0;
   justify-content: center;
   align-items: center;
-  background: rgba(255,255,255,.6);
+  background: rgba(255, 255, 255, 0.6);
   z-index: 123123;
 
   &:after {
@@ -30,5 +30,4 @@
   &_visible {
     display: flex;
   }
-
 }

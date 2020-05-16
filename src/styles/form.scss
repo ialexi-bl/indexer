@@ -5,7 +5,7 @@
   padding: 1em;
   display: grid;
   grid-template-columns: 7em auto 2em;
-  grid-gap: .5em;
+  grid-gap: 0.5em;
 
   &__Icon {
     height: 100%;
@@ -35,10 +35,11 @@
     }
   }
 
-  &__Input, &__Button {
+  &__Input,
+  &__Button {
     border-radius: 4px;
     box-shadow: 0 0 0 0 transparent;
-    transition: .15s;
+    transition: 0.15s;
     border: none;
     height: 1.7em;
 
@@ -52,23 +53,24 @@
   }
 
   &__Input {
-    padding: .5em;
+    padding: 0.5em;
     border: 2px solid $i_secondary_highlight;
     cursor: text;
 
     &:focus {
       //box-shadow: 0 0 0 2px $i_main;
-      border-color: $i_main!important;
+      border-color: $i_main !important;
     }
 
     &_invalid {
       box-shadow: 0 0 0 2px $warning-color;
     }
 
-    &_readonly, &_disabled {
+    &_readonly,
+    &_disabled {
       border: none;
-      background: $disabled-color!important;
-      color: #666!important;
+      background: $disabled-color;
+      color: #666;
 
       &:focus {
         box-shadow: 0 0 0 2px lightgray;
@@ -77,7 +79,9 @@
     }
   }
 
-  &__Input, &__Checkbox, &__Select {
+  &__Input,
+  &__Checkbox,
+  &__Select {
     background: $i_bg;
     grid-column: 2 / -1;
   }
@@ -104,7 +108,7 @@
     align-items: center;
     background: $i_main;
     min-height: 2.2em;
-    padding: .3em .7em .4em;
+    padding: 0.3em 0.7em 0.4em;
     display: flex;
     cursor: pointer;
     color: white;
@@ -174,12 +178,12 @@
   }
 
   .Form__Eraser {
-    width: .9em;
-    height: .9em;
+    width: 0.9em;
+    height: 0.9em;
     position: absolute;
     cursor: pointer;
-    top: .1em;
-    right: .1em;
+    top: 0.1em;
+    right: 0.1em;
   }
 
   &_workspace {
@@ -193,7 +197,10 @@
       grid-column: -3;
     }
 
-    .Form__Input, .Form__ErasableInput, .Form__Checkbox, .Form__Select {
+    .Form__Input,
+    .Form__ErasableInput,
+    .Form__Checkbox,
+    .Form__Select {
       grid-column: 3 / -2;
     }
 
@@ -206,10 +213,11 @@
   }
 }
 
-.App_night, .Modal_night {
+.App_night,
+.Modal_night {
   .Form {
     &__Input {
-      color: white;
+      color: #ddd;
       border-color: $i_secondary_dark_highlight;
       background: $i_bg_dark;
     }
@@ -218,8 +226,27 @@
       color: black;
     }
 
+    &__Dead,
+    &__Unsure,
+    &__Eraser {
+      fill: #ddd;
+    }
+
     &__Input_readonly {
-      background: $disabled-color
+      background: $disabled-color-dark;
+    }
+    &__Input_disabled {
+      background: $disabled-color-dark;
+    }
+
+    &__Label [class$='control'],
+    &__Label [class$='menu'],
+    &__Label [class$='indicatorSeparator'] {
+      background: lighten($i_bg_dark, 10%);
+      border: none;
+    }
+    &__Label [class$='singleValue'] {
+      color: #ddd;
     }
   }
 }
