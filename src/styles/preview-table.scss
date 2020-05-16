@@ -1,3 +1,5 @@
+@import 'colors';
+
 html,
 body {
   &::-webkit-scrollbar {
@@ -32,9 +34,6 @@ body {
     font-weight: bold;
   }
 
-  &__ScrollCont {
-  }
-
   &__Cell {
     height: 60px;
     display: flex;
@@ -44,11 +43,29 @@ body {
     &_header {
       justify-self: center;
       position: sticky;
-      background: white;
+      // background: white;
       min-height: 3em;
       border-bottom: 1px solid lightgray;
       width: 100%;
       top: 0;
     }
+  }
+}
+
+.App_night {
+  background: $i_bg_dark;
+
+  .react-grid-Row:hover .react-grid-Cell {
+    background-color: #222 !important;
+  }
+
+  .react-grid-Cell,
+  .react-grid-HeaderCell,
+  .react-grid-Canvas {
+    background: $i_bg_dark;
+    border-color: #333;
+  }
+  .react-grid-Grid {
+    border: none;
   }
 }

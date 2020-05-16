@@ -1,4 +1,4 @@
-<img src="assets/icon.png" title="logo" width="25%">
+<img src="assets/icon.png" title="logo" width="25%" />
 
 # Indexer
 
@@ -6,12 +6,48 @@ Small application to simplify work for [Poznań project](http://poznan-project.p
 
 ## Technologies
 
-This application uses NodeJS (tested and works on versions 10 to 14), electron 5.0.6, react ^16.8.6. All dependencies can be installed with `npm install` in project directory.
+This application is written entirely in JavaScript (tested and works on NodeJS versions 10 to 14). It uses Electron 5.0.6 and React ^16.8.6
 
 ## Features
 
-- Simple interface for filling necessary data for each document for Poznań project
-- All the marks that may be needed for different fields
+- Easy import and export to excel table
+- Simple interface for filling necessary data for Poznań project
+- Editable fields order
+- All annotations that may be needed for different fields with keyboard shortcuts
+
+<img src="img/workspace.png" title="Workspace" width="100%" />
+
 - Translations in English, Russian, Polish and French
-- Automatic convertion to `.xlsx` file in appropriate format
-- Excel table preview
+- Night mode
+- Editable table preview with undo and redo history
+
+<img src="img/preview.png" title="Table preview" width="100%" />
+
+## Building
+
+Make sure to install all the necessary dependencies after cloning using
+
+```bash
+$ npm install
+```
+
+When the installation process is finished, run one of the following commands to build application for appropriate operating system
+
+```bash
+# Windows
+$ npm run build:win
+# Linux
+$ npm run build:lin
+# Mac
+$ npm run build:max
+```
+
+## Local development
+
+Run application server locally with
+
+```
+$ npm run electron-dev
+```
+
+Note that the application uses port 3000 in development mode, so it needs to be free. Developer tools will be opened automatically.

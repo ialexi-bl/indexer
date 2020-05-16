@@ -1,4 +1,5 @@
 import React from 'react'
+import classNames from 'classnames'
 import TableController from 'services/TableController'
 import { useTranslation } from 'react-i18next'
 import DataGrid from 'react-data-grid'
@@ -140,10 +141,14 @@ export default function TablePreview() {
     return () => window.removeEventListener('resize', onWindowResize)
   }, [])
 
-  console.log(currState, changes)
-
+  const isNightMode = localStorage.getItem('nightMode') === 'true'
   return (
-    <div className={'App'} onKeyDown={onKeyDown}>
+    <div
+      className={classNames('App', {
+        App_night: isNightMode,
+      })}
+      onKeyDown={onKeyDown}
+    >
       <TitleBar menu={menu} className={'TitleBar'} />
       <DataGrid
         columns={columns}

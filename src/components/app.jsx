@@ -80,16 +80,14 @@ const App = connect((preferences) => ({ preferences }))(function App({
   dispatch,
 }) {
   const { t, i18n } = useTranslation()
-
   const [modal, setModal] = React.useState(
     preferences.isGuest ? 'about_guest' : null
   )
-
-  const [nightMode, setNightMode] = React.useState(false)
-
+  const [nightMode, setNightMode] = React.useState(preferences.nightMode)
   const [unloading, setUnloading] = React.useState(false)
-
   const closeModal = React.useCallback(() => setModal(null), [])
+
+  console.log(preferences)
 
   const menu = React.useMemo(
     () => [
@@ -195,6 +193,7 @@ const App = connect((preferences) => ({ preferences }))(function App({
     window.addEventListener('beforeunload', onBeforeUnload)
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [])
+
   React.useEffect(() => {
     function onKeyDown(e) {
       if (KeyBinding.get('save').test(e)) {

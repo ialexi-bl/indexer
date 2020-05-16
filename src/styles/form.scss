@@ -52,6 +52,13 @@
     background: #d1d5da !important;
   }
 
+  &__Input,
+  &__Checkbox,
+  &__Select {
+    background: $i_bg;
+    grid-column: 2 / -1;
+  }
+
   &__Input {
     padding: 0.5em;
     border: 2px solid $i_secondary_highlight;
@@ -77,13 +84,6 @@
         outline: none;
       }
     }
-  }
-
-  &__Input,
-  &__Checkbox,
-  &__Select {
-    background: $i_bg;
-    grid-column: 2 / -1;
   }
 
   &__FilePreview {
