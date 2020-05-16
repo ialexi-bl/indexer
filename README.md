@@ -17,6 +17,8 @@ This application is written entirely in JavaScript (tested and works on NodeJS v
 
 <img src="img/workspace.png" title="Workspace" width="100%" />
 
+--------------------------
+
 - Translations in English, Russian, Polish and French
 - Night mode
 - Editable table preview with undo and redo history
