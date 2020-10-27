@@ -184,9 +184,15 @@ const App = connect((preferences) => ({ preferences }))(function App({
     KeyBinding.init()
 
     function onBeforeUnload() {
+      console.log('beforeunload')
       if (!TableController.saved) {
         setUnloading(true)
         return false
+      } else {
+        window.removeEventListener('beforeunload', onBeforeUnload)
+        // return true
+
+        electron.getCurrentWindow().close()
       }
     }
 
@@ -198,15 +204,20 @@ const App = connect((preferences) => ({ preferences }))(function App({
     function onKeyDown(e) {
       if (KeyBinding.get('save').test(e)) {
         toast.dismiss('saveNotification')
-        toast.info(t('Table was saved'), {
-          position: toast.POSITION.TOP_CENTER,
-          autoClose: 2000,
-          hideProgressBar: true,
-          transition: Slide,
-          toastId: 'saveNotification',
-          className: 'App__Toast',
-        })
-        TableController.save()
+        TableController.save(t)
+          .then(() =>
+            toast.info(t('Table was saved'), {
+              position: toast.POSITION.TOP_CENTER,
+              autoClose: 2000,
+              hideProgressBar: true,
+              transition: Slide,
+              toastId: 'saveNotification',
+              className: 'App__Toast',
+            })
+          )
+          .catch((e) => {
+            toast.error(`Couldn't save file: ${e}`)
+          })
       }
     }
     document.addEventListener('keydown', onKeyDown)
@@ -256,29 +267,29 @@ function UnloadingModal({ closeModal, ...props }) {
   )
 
   const onSaveDestinationChoice = React.useCallback(() => {
-    electron.dialog.showSaveDialog(
-      electron.getCurrentWindow(),
-      {
+    electron.dialog
+      .showSaveDialog(electron.getCurrentWindow(), {
         title: t('Import file'),
         filters: [
           { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
         ],
         buttonLabel: t('Choose'),
         defaultPath: `${t('Document')}.xlsx`,
-      },
-      (path) => {
+      })
+      .then(({ filePath: path }) => {
         if (path) {
           setExportPath(path)
         }
-      }
-    )
+      })
   }, [t])
 
   const closeWindow = React.useCallback(() => {
     electron.getCurrentWindow().destroy()
   }, [])
 
-  const onSave = React.useCallback(() => {}, [])
+  const onSave = React.useCallback(() => {
+    TableController.save(t).then(closeWindow)
+  }, [closeWindow, t])
 
   return (
     <Modal {...props} closeModal={closeModal}>

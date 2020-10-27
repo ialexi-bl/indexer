@@ -58,42 +58,38 @@ export default function ImportModal({ closeModal, ...props }) {
   )
 
   const onFileChoice = () => {
-    electron.dialog.showOpenDialog(
-      electron.getCurrentWindow(),
-      {
+    electron.dialog
+      .showOpenDialog(electron.getCurrentWindow(), {
         title: t('Import file'),
         filters: [
           { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
         ],
         properties: ['openFile'],
         buttonLabel: t('Choose'),
-      },
-      (paths) => {
+      })
+      .then(({ filePaths: paths }) => {
         if (paths) {
           setPath(paths[0])
           localStorage.setItem('lastImport', paths[0])
         }
-      }
-    )
+      })
   }
 
   const onSaveDestinationChoice = () => {
-    electron.dialog.showSaveDialog(
-      electron.getCurrentWindow(),
-      {
+    electron.dialog
+      .showSaveDialog(electron.getCurrentWindow(), {
         title: t('Save document'),
         filters: [
           { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
         ],
         buttonLabel: t('Choose'),
         defaultPath: `${t('Document')}.xlsx`,
-      },
-      (path) => {
+      })
+      .then(({ filePath: path }) => {
         if (path) {
           setExportPath(path)
         }
-      }
-    )
+      })
   }
 
   const importDocument = async (shouldSave) => {
@@ -123,7 +119,7 @@ export default function ImportModal({ closeModal, ...props }) {
 
   const onImport = () => {
     if (!path.trim()) return
-    TableController.saved ? setNotificationOpen(true) : importDocument(false)
+    TableController.saved ? importDocument(false) : setNotificationOpen(true)
   }
 
   return (

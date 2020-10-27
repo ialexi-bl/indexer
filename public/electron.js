@@ -17,6 +17,7 @@ function createWindow() {
     minHeight: 500,
     frame: false,
     webPreferences: {
+      enableRemoteModule: true,
       nodeIntegration: true,
     },
   })
@@ -45,6 +46,7 @@ function createWindow() {
       minHeight: 500,
       frame: false,
       webPreferences: {
+        enableRemoteModule: true,
         nodeIntegration: true,
       },
     })

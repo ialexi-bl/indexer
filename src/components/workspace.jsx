@@ -57,9 +57,7 @@ function createFieldsDesc(t) {
             ? `wife.${order.wife[index - 1]}`
             : `husband.${order.husband[order.husband.length - 1]}`,
         next:
-          index + 1 in order.wife
-            ? `wife.${order.husband[index + 1]}`
-            : 'button',
+          index + 1 in order.wife ? `wife.${order.wife[index + 1]}` : 'button',
       }
     }
 
@@ -407,7 +405,7 @@ function Workspace({ className, inputsOrder }) {
       : KeyBinding.get('navigateBackwards').test(e)
       ? 'prev'
       : null
-    console.log(e)
+    // console.log(e)
     if (!direction) return
 
     e.preventDefault()
@@ -440,6 +438,7 @@ function Workspace({ className, inputsOrder }) {
   }
 
   React.useEffect(() => {
+    console.log(inputsOrder)
     fieldsDispatch(changeConfig(t, inputsOrder))
   }, [i18n.language, inputsOrder, t])
 

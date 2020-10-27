@@ -17,7 +17,7 @@ This application is written entirely in JavaScript (tested and works on NodeJS v
 
 <img src="img/workspace.png" title="Workspace" width="100%" />
 
---------------------------
+---
 
 - Translations in English, Russian, Polish and French
 - Night mode
@@ -43,6 +43,8 @@ $ npm run build:lin
 # Mac
 $ npm run build:max
 ```
+
+**NOTE:** you will have to install `wine` and `wine32` to build app for windows on linux (or wsl)
 
 ## Local development
 

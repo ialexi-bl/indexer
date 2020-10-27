@@ -8,7 +8,7 @@ i18n
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     resources,
-    debug: process.env.NODE_ENV === 'development',
+    // debug: process.env.NODE_ENV === 'development',
 
     lng: localStorage.getItem('language'), // || detected language
     whitelist: Object.keys(resources),

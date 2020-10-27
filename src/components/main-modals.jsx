@@ -70,7 +70,7 @@ export function HelpModal({ closeModal, ...props }) {
         <p>
           Some fields, that are rarely used, are disabled by default. They will
           enable as soon as you click them or navigate to them with the{' '}
-          <kbd>Alt</kbd> key pressed.
+          <kbd>Ctrl</kbd> key pressed.
         </p>
         <p>
           While editing parents fields, you can mark them as dead by clicking

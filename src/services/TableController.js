@@ -38,7 +38,7 @@ function getStandardPath(filename) {
   return result
 }
 
-export default window.TablerController = class TableController {
+export default window.TableController = class TableController {
   static lastNumber = -1
   static saved = true
 
@@ -78,8 +78,8 @@ export default window.TablerController = class TableController {
     const ws = await this._read(path)
 
     // Converting to JSON
-    const array = ws.getSheetValues().slice(1),
-      header = array[0]
+    const array = ws.getSheetValues().slice(1)
+    const header = array[0]
 
     // Removing header
     if (typeof hasHeader != 'boolean') {
@@ -98,7 +98,7 @@ export default window.TablerController = class TableController {
     // Clearing db
     // TODO: do backups
     await this._clearDatabase()
-    this.currentDocument = void 0
+    this.currentDocument = path
 
     // Saving to memory
     for (let i = 0, l = array.length; i < l; i++) {
@@ -146,29 +146,27 @@ export default window.TablerController = class TableController {
    * Saves current table in memory into the current working file
    * @return {Promise<void>}
    */
-  static save(t, useCurrentPath = true) {
-    if (!this.hasCurrentDocument) return Promise.resolve()
+  static async save(t, useCurrentPath = true) {
+    if (!(await this.hasCurrentDocument())) return Promise.resolve()
     if (!this.currentDocument || !useCurrentPath) {
       return new Promise((resolve) => {
-        electron.dialog.showSaveDialog(
-          electron.getCurrentWindow(),
-          {
+        electron.dialog
+          .showSaveDialog(electron.getCurrentWindow(), {
             title: t('Choose file'),
             filters: [
               { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
             ],
             buttonLabel: t('Save'),
             defaultPath: `${t('Document')}.xlsx`,
-          },
-          (path) => {
+          })
+          .then(({ filePath: path }) => {
             if (path) {
               this.currentDocument = path
               this.export(path)
               this.saved = true
             }
             resolve()
-          }
-        )
+          })
       })
     }
     return this.export(this.currentDocument)

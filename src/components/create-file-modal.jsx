@@ -29,9 +29,8 @@ export default function CreateFileModal({ closeModal, ...props }) {
   )
 
   const onFileChoice = () => {
-    electron.dialog.showSaveDialog(
-      electron.getCurrentWindow(),
-      {
+    electron.dialog
+      .showSaveDialog(electron.getCurrentWindow(), {
         title: t('Create file'),
         filters: [
           { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
@@ -39,36 +38,33 @@ export default function CreateFileModal({ closeModal, ...props }) {
         properties: ['openFile'],
         buttonLabel: t('Choose'),
         defaultPath: `${t('Document')}.xlsx`,
-      },
-      (path) => {
+      })
+      .then(({ filePath: path }) => {
         if (path) {
           setPath(path)
           localStorage.setItem('lastImport', path)
         }
-      }
-    )
+      })
   }
 
   const onSaveDestinationChoice = () => {
-    electron.dialog.showSaveDialog(
-      electron.getCurrentWindow(),
-      {
+    electron.dialog
+      .showSaveDialog(electron.getCurrentWindow(), {
         title: t('Save document'),
         filters: [
           { name: t('Microsoft Excel table'), extensions: ['xlsx', 'xls'] },
         ],
         buttonLabel: t('Choose'),
         defaultPath: `${t('Document')}.xlsx`,
-      },
-      (path) => {
+      })
+      .then(({ filePath: path }) => {
         if (path) {
           setExportPath(path)
         }
-      }
-    )
+      })
   }
 
-  const importDocument = async (shouldSave) => {
+  const createDocument = async (shouldSave) => {
     setLoading(true)
     closeNotificationModal()
     try {
@@ -90,9 +86,10 @@ export default function CreateFileModal({ closeModal, ...props }) {
       setMessageModalOpen(true)
     }
   }
-  const onImport = () => {
+  const onCreate = () => {
     if (!path.trim()) return
-    TableController.saved ? setNotificationOpen(true) : importDocument(false)
+    console.dir(TableController)
+    TableController.saved ? createDocument(false) : setNotificationOpen(true)
   }
 
   return (
@@ -105,7 +102,7 @@ export default function CreateFileModal({ closeModal, ...props }) {
           onFileChoice={onFileChoice}
         />
         <ButtonsRow>
-          <Button label={t('Create')} disabled={!path} onClick={onImport} />
+          <Button label={t('Create')} disabled={!path} onClick={onCreate} />
         </ButtonsRow>
         <Loading visible={loading} />
       </Form>
@@ -123,8 +120,8 @@ export default function CreateFileModal({ closeModal, ...props }) {
             value={exportPath}
           />
           <ButtonsRow>
-            <Button label={t('Yes')} onClick={importDocument.bind({}, true)} />
-            <Button label={t('No')} onClick={importDocument.bind({}, false)} />
+            <Button label={t('Yes')} onClick={() => createDocument(true)} />
+            <Button label={t('No')} onClick={() => createDocument(false)} />
             <Button label={t('Cancel')} onClick={closeNotificationModal} />
           </ButtonsRow>
         </Form>

@@ -30,9 +30,9 @@ const defaultBindings = {
     ],
   },
 
-  forceEnable: { type: 'control', alt: true },
+  forceEnable: { type: 'control', ctrl: true },
   // UNUSED
-  polishLetter: { type: 'control', alt: true /*, location: 2 */ },
+  polishLetter: { type: 'control', ctrl: true /*, location: 2 */ },
 }
 
 export default class KeyBinding {
